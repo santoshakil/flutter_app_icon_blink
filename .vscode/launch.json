@@ -4,7 +4,8 @@
     {
       "name": "app",
       "request": "launch",
-      "type": "dart"
+      "type": "dart",
+      "args": ["-v"]
     },
     {
       "name": "app.p",
