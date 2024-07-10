@@ -1,0 +1,27 @@
+display_name: Blink App Icon # Change this to your app name.
+icon: linux/assets/app_icon.png # Change this to your app icon.
+summary: A Flutter application for Linux. # Change this to your app summary.
+group: Applications/Development Tools
+vendor: BlackShadowSoftware # Change this to your company name.
+packager: Remon Ahammad # Change this to your name.
+packagerEmail: blackshadowsoftwareltd@gmail.com # Change this to your email.
+license: ASL 2.0
+url: https://github.com/blackshadowsoftwareltd # Change this to your app repository.
+
+# build_arch: aarch64
+BuildArch: noarch
+
+requires:
+  - mpv
+
+keywords:
+  - API
+  - Blink App Icon # Change this to your app name.
+
+generic_name: Blink App Icon # Change this to your app name.
+
+categories: 
+  - Development
+  - Network # Change this to your app category.
+
+startup_notify: true
