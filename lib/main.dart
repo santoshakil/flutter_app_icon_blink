@@ -8,7 +8,6 @@ void main() async {
   try {
     final version = await _channel.invokeMethod('getPlatformVersion');
     debugPrint('Platform version: $version');
-    await _channel.invokeMethod('blinkAppIcon');
   } catch (e) {
     debugPrint('Error: $e');
   }
@@ -25,9 +24,20 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true),
       darkTheme: ThemeData.dark(useMaterial3: true),
-      home: const Scaffold(
+      home: Scaffold(
         body: Center(
-          child: Text('...'),
+          child: FilledButton(
+            child: const Text('Blink'),
+            onPressed: () async {
+              try {
+                debugPrint('Blinking app icon');
+                await _channel.invokeMethod('blinkAppIcon');
+                debugPrint('Blinked app icon');
+              } catch (e) {
+                debugPrint('Error: $e');
+              }
+            },
+          ),
         ),
       ),
     );
