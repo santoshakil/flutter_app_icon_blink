@@ -17,28 +17,33 @@ struct _MyApplication {
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 
-// Function to blink the app icon
-static void blink_app_icon(GtkWindow* window) {
-#ifdef GDK_WINDOWING_X11
+static gboolean blink_step(gpointer data) {
+  static int step = 0;
+  GtkWindow* window = GTK_WINDOW(data);
   GdkDisplay* display = gdk_display_get_default();
   GdkWindow* gdk_window = gtk_widget_get_window(GTK_WIDGET(window));
   Window x11_window = gdk_x11_window_get_xid(gdk_window);
 
-  for (int i = 0; i < 3; i++) {
-    XWMHints* hints = XAllocWMHints();
+  XWMHints* hints = XAllocWMHints();
+  if (step % 2 == 0) {
     hints->flags = XUrgencyHint;
-    XSetWMHints(GDK_DISPLAY_XDISPLAY(display), x11_window, hints);
-    XFree(hints);
-    XFlush(GDK_DISPLAY_XDISPLAY(display));
-    sleep(1);
-
-    hints = XAllocWMHints();
+  } else {
     hints->flags = 0;
-    XSetWMHints(GDK_DISPLAY_XDISPLAY(display), x11_window, hints);
-    XFree(hints);
-    XFlush(GDK_DISPLAY_XDISPLAY(display));
-    sleep(1);
   }
+  XSetWMHints(GDK_DISPLAY_XDISPLAY(display), x11_window, hints);
+  XFree(hints);
+  XFlush(GDK_DISPLAY_XDISPLAY(display));
+
+  step++;
+  if (step >= 6) { // 3 cycles of on/off
+    return FALSE; // Stop the timeout
+  }
+  return TRUE; // Continue the timeout
+}
+
+static void blink_app_icon(GtkWindow* window) {
+#ifdef GDK_WINDOWING_X11
+  g_timeout_add(1000, blink_step, window); // Call blink_step every 1000 milliseconds
 #endif
 }
 
