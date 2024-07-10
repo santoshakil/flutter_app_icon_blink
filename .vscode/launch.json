@@ -11,13 +11,15 @@
       "name": "app.p",
       "request": "launch",
       "type": "dart",
-      "flutterMode": "profile"
+      "flutterMode": "profile",
+      "args": ["-v"]
     },
     {
       "name": "app.r",
       "request": "launch",
       "type": "dart",
-      "flutterMode": "release"
+      "flutterMode": "release",
+      "args": ["-v"]
     }
   ]
 }
