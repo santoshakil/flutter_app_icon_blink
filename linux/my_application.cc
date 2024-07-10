@@ -3,6 +3,9 @@
 #include <flutter_linux/flutter_linux.h>
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
+#include <unistd.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #endif
 
 #include "flutter/generated_plugin_registrant.h"
@@ -14,7 +17,32 @@ struct _MyApplication {
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 
-//! Method call handler
+// Function to blink the app icon
+static void blink_app_icon(GtkWindow* window) {
+#ifdef GDK_WINDOWING_X11
+  GdkDisplay* display = gdk_display_get_default();
+  GdkWindow* gdk_window = gtk_widget_get_window(GTK_WIDGET(window));
+  Window x11_window = gdk_x11_window_get_xid(gdk_window);
+
+  for (int i = 0; i < 3; i++) {
+    XWMHints* hints = XAllocWMHints();
+    hints->flags = XUrgencyHint;
+    XSetWMHints(GDK_DISPLAY_XDISPLAY(display), x11_window, hints);
+    XFree(hints);
+    XFlush(GDK_DISPLAY_XDISPLAY(display));
+    sleep(1);
+
+    hints = XAllocWMHints();
+    hints->flags = 0;
+    XSetWMHints(GDK_DISPLAY_XDISPLAY(display), x11_window, hints);
+    XFree(hints);
+    XFlush(GDK_DISPLAY_XDISPLAY(display));
+    sleep(1);
+  }
+#endif
+}
+
+// Method call handler
 static void method_call_handler(FlMethodChannel* channel, FlMethodCall* method_call, gpointer user_data) {
   g_autoptr(FlMethodResponse) response = nullptr;
   const gchar* method = fl_method_call_get_name(method_call);
@@ -22,13 +50,16 @@ static void method_call_handler(FlMethodChannel* channel, FlMethodCall* method_c
   if (strcmp(method, "getPlatformVersion") == 0) {
     g_autoptr(FlValue) result = fl_value_new_string("Linux");
     response = FL_METHOD_RESPONSE(fl_method_success_response_new(result));
+  } else if (strcmp(method, "blinkAppIcon") == 0) {
+    GtkWindow* window = GTK_WINDOW(user_data);
+    blink_app_icon(window);
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(nullptr));
   } else {
     response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
   }
 
   fl_method_call_respond(method_call, response, nullptr);
 }
-//! Method call handler
 
 // Implements GApplication::activate.
 static void my_application_activate(GApplication* application) {
@@ -75,7 +106,7 @@ static void my_application_activate(GApplication* application) {
       "com.example.flutter_app_icon_blink/method_channel",
       FL_METHOD_CODEC(codec));
 
-  fl_method_channel_set_method_call_handler(channel, method_call_handler, g_object_ref(view), g_object_unref);
+  fl_method_channel_set_method_call_handler(channel, method_call_handler, g_object_ref(window), g_object_unref);
   //! Create the method channel
 
   gtk_widget_grab_focus(GTK_WIDGET(view));

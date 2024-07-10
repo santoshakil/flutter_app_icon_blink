@@ -8,6 +8,7 @@ void main() async {
   try {
     final version = await _channel.invokeMethod('getPlatformVersion');
     debugPrint('Platform version: $version');
+    await _channel.invokeMethod('blinkAppIcon');
   } catch (e) {
     debugPrint('Error: $e');
   }
