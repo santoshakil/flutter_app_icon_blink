@@ -3,14 +3,31 @@ import 'package:flutter/services.dart';
 
 const _channel = MethodChannel('com.example.flutter_app_icon_blink/method_channel');
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+Future<void> checkMethodChennel() async {
   try {
     final version = await _channel.invokeMethod('getPlatformVersion');
     debugPrint('Platform version: $version');
   } catch (e) {
     debugPrint('Error: $e');
   }
+}
+
+Future<void> blinkAppIcon() async {
+  // ? 5 Sec delay for testing purpose
+  // ? In this time you can unfocus the app and see the app icon blinking / notifcation
+  await Future.delayed(const Duration(seconds: 5)); // ? ignore in production
+  try {
+    debugPrint('Blinking app icon');
+    await _channel.invokeMethod('blinkAppIcon');
+    debugPrint('Blinked app icon');
+  } catch (e) {
+    debugPrint('Error: $e');
+  }
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await checkMethodChennel();
   runApp(const MyApp());
 }
 
@@ -29,13 +46,7 @@ class MyApp extends StatelessWidget {
           child: FilledButton(
             child: const Text('Blink'),
             onPressed: () async {
-              try {
-                debugPrint('Blinking app icon');
-                await _channel.invokeMethod('blinkAppIcon');
-                debugPrint('Blinked app icon');
-              } catch (e) {
-                debugPrint('Error: $e');
-              }
+              await blinkAppIcon();
             },
           ),
         ),
